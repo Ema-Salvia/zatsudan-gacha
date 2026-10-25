@@ -92,16 +92,6 @@ header p { color: var(--muted); margin-top: 10px; }
   border-color: var(--accent);
 }
 
-.reel.spinning {
-  animation: shake .13s infinite alternate;
-  filter: blur(.5px);
-}
-
-@keyframes shake {
-  from { transform: translateY(-3px); }
-  to { transform: translateY(3px); }
-}
-
 .controls {
   display: flex;
   justify-content: center;
@@ -509,43 +499,23 @@ function createResult() {
 
 let busy = false;
 
+
 function spin() {
   if (busy) return;
   busy = true;
   spinButton.disabled = true;
-  $("resetButton").disabled = true;
 
   const result = createResult();
 
-  reelCards.forEach(card => card.classList.add("spinning"));
+  result.values.forEach((value, i) => {
+    reels[i].textContent = value;
+  });
 
-  let ticks = 0;
-  const interval = setInterval(() => {
-    reels.forEach((reel, i) => {
-      reel.textContent = pick([
-        "？？？", "🎰", "抽選中…", "✨", "🎲"
-      ]);
-    });
+  $("resultTopic").textContent = result.topic;
+  $("resultPath").textContent = result.path;
 
-    ticks++;
-
-    if (ticks >= 12) {
-      clearInterval(interval);
-
-      result.values.forEach((value, i) => {
-        reels[i].textContent = value;
-      });
-
-      reelCards.forEach(card => card.classList.remove("spinning"));
-
-      $("resultTopic").textContent = result.topic;
-      $("resultPath").textContent = result.path;
-
-      busy = false;
-      spinButton.disabled = false;
-      $("resetButton").disabled = false;
-    }
-  }, 100);
+  busy = false;
+  spinButton.disabled = false;
 }
 
 function reset() {
