@@ -464,23 +464,112 @@ function getTopicForGenre(big) {
   return `「${big}」について、好きなところや気になることを語るなら？`;
 }
 
+function getRelatedTypes(topic) {
+  const rules = [
+    {
+      words: ["ランキング", "ベスト3", "一つだけ選ぶ", "一番"],
+      middle: "おすすめ・お気に入り",
+      small: "🏆 ベスト・ランキング",
+      deep: "一つだけ選んで語る"
+    },
+    {
+      words: ["思い出", "子どもの頃", "夢中だった", "体験", "経験"],
+      middle: "思い出・体験",
+      small: "💭 思い出・経験",
+      deep: "自分の経験を振り返る"
+    },
+    {
+      words: ["比べ", "違い", "対決", "比較"],
+      middle: "昔と今の違い",
+      small: "⚔️ 比較・対決",
+      deep: "他のものと比べる"
+    },
+    {
+      words: ["将来", "今後", "未来", "これから", "広まりそう"],
+      middle: "今後の変化",
+      small: "🔮 未来・予想",
+      deep: "将来どうなるか考える"
+    },
+    {
+      words: ["もし", "できるなら", "何でもできる", "理想の"],
+      middle: "意外な一面",
+      small: "🪄 もしも・空想",
+      deep: "具体例を挙げる"
+    },
+    {
+      words: ["好き", "魅力", "お気に入り", "すすめたい", "おすすめ"],
+      middle: "おすすめ・お気に入り",
+      small: "❤️ 好き・嫌い",
+      deep: "人にすすめるならどうするか考える"
+    },
+    {
+      words: ["理由", "必要", "大切", "特徴", "考え", "意見"],
+      middle: "魅力・面白さ",
+      small: "🤔 意見・考え",
+      deep: "理由を考える"
+    },
+    {
+      words: ["お金", "投資", "物価", "景気", "買って", "価値"],
+      middle: "良いところ・困るところ",
+      small: "💰 お金・価値",
+      deep: "具体例を挙げる"
+    },
+    {
+      words: ["笑った", "面白い", "珍しい", "不思議", "驚いた"],
+      middle: "意外な一面",
+      small: "😂 ネタ・珍話",
+      deep: "具体例を挙げる"
+    },
+    {
+      words: ["知りたい", "仕組み", "文化", "雑学", "解明"],
+      middle: "初心者向けの話",
+      small: "🧠 知識・雑学",
+      deep: "具体例を挙げる"
+    }
+  ];
+
+  const rule = rules.find(item =>
+    item.words.some(word => topic.includes(word))
+  );
+
+  if (rule) {
+    return {
+      middle: rule.middle,
+      small: rule.small,
+      deep: rule.deep
+    };
+  }
+
+  return {
+    middle: pick(middleTypes),
+    small: pick(smallTypes),
+    deep: pick(deepTypes)
+  };
+}
+
+
 function createResult() {
   const big = pick(bigGenres);
-  const small = pick(smallTypes);
-  const middle = pick(middleTypes);
-  const deep = pick(deepTypes);
   const topic = getTopicForGenre(big);
+  const related = getRelatedTypes(topic);
 
   if (big === "🎵 音楽") {
     const sub = pick(musicSubgenres);
+
     $("label1").textContent = "REEL 2 · 音楽サブジャンル";
     $("label2").textContent = "REEL 3 · 中ジャンル";
     $("label3").textContent = "REEL 4 · 小ジャンル";
     $("label4").textContent = "REEL 5 · お題";
 
     return {
-      values: [big, sub, middle, small, topic],
-      path: `${big} → ${sub} → ${middle} → ${small}`,
+      values: [
+        big,
+        sub,
+        related.middle,
+        related.small,
+        topic
+      ],
+      path: `${big} → ${sub} → ${related.middle} → ${related.small}`,
       topic
     };
   }
@@ -491,8 +580,14 @@ function createResult() {
   $("label4").textContent = "REEL 5 · お題";
 
   return {
-    values: [big, middle, small, deep, topic],
-    path: `${big} → ${middle} → ${small} → ${deep}`,
+    values: [
+      big,
+      related.middle,
+      related.small,
+      related.deep,
+      topic
+    ],
+    path: `${big} → ${related.middle} → ${related.small} → ${related.deep}`,
     topic
   };
 }
