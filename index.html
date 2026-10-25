@@ -3,198 +3,317 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>雑談ガチャ</title>
+
 <style>
 :root {
-  --bg: #111827;
-  --panel: #1f2937;
-  --cell: #273449;
-  --accent: #a78bfa;
-  --text: #f9fafb;
-  --muted: #9ca3af;
+  --bg: #10131c;
+  --panel: #1c2230;
+  --text: #f5f6fa;
+  --muted: #aab3c5;
+  --accent: #ffd166;
+  --blue: #78a9ff;
 }
+
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
-  padding: 24px;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at top, #283451 0%, transparent 55%),
+    var(--bg);
   color: var(--text);
-  background: radial-gradient(circle at top, #28324c, var(--bg) 65%);
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
-main { max-width: 1250px; margin: 0 auto; }
-header { text-align: center; margin-bottom: 28px; }
-h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 42px); }
-.subtitle { color: var(--muted); margin: 0; }
-.panel {
-  background: rgba(31,41,55,.94);
-  border: 1px solid #475569;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 15px 45px #0004;
+
+main {
+  width: min(1100px, 94%);
+  margin: auto;
+  padding: 32px 0 48px;
 }
+
+header { text-align: center; margin-bottom: 28px; }
+
+h1 {
+  margin: 0;
+  font-size: clamp(30px, 6vw, 48px);
+  letter-spacing: .08em;
+}
+
+header p { color: var(--muted); margin-top: 10px; }
+
+.machine {
+  background: linear-gradient(145deg, #252d40, #171c28);
+  border: 2px solid #46516b;
+  border-radius: 24px;
+  padding: clamp(14px, 3vw, 28px);
+  box-shadow: 0 18px 55px #0007;
+}
+
 .reels {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
+
 .reel {
   min-width: 0;
-  overflow: hidden;
-  border-radius: 12px;
-  background: var(--cell);
-  border: 1px solid #475569;
-  text-align: center;
-}
-.reel-label {
-  display: block;
-  padding: 12px 4px;
-  background: #374151;
-  color: #ddd6fe;
-  font-weight: 800;
-  font-size: 14px;
-}
-.reel-value {
+  min-height: 165px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  min-height: 112px;
-  padding: 12px 6px;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 8px;
+  border-radius: 15px;
+  background: linear-gradient(#fff, #e9edf5);
+  color: #202638;
+  border: 2px solid #c8d0e0;
   overflow-wrap: anywhere;
-  font-size: clamp(13px, 1.5vw, 19px);
-  font-weight: 700;
+  transition: border-color .2s, transform .2s;
 }
-.reel:last-child .reel-value { font-size: clamp(12px, 1.3vw, 16px); }
-.reel.spinning .reel-value { animation: flash .12s linear infinite alternate; }
-@keyframes flash {
-  from { opacity: .45; transform: translateY(-2px); }
-  to { opacity: 1; transform: translateY(2px); }
+
+.reel .number {
+  font-size: 12px;
+  color: #69758d;
+  margin-bottom: 12px;
 }
+
+.reel .value {
+  font-size: clamp(13px, 2vw, 18px);
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.reel:last-child {
+  background: linear-gradient(#fff8df, #ffe5a1);
+  border-color: var(--accent);
+}
+
+.reel.spinning {
+  animation: shake .13s infinite alternate;
+  filter: blur(.5px);
+}
+
+@keyframes shake {
+  from { transform: translateY(-3px); }
+  to { transform: translateY(3px); }
+}
+
 .controls {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
 }
+
 button {
   border: 0;
-  border-radius: 12px;
-  padding: 14px 24px;
+  border-radius: 999px;
+  padding: 14px 28px;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 750;
   cursor: pointer;
+  transition: transform .15s, opacity .15s;
 }
-button:disabled { opacity: .55; cursor: wait; }
-#draw {
-  color: #1f1635;
-  background: linear-gradient(135deg, #c4b5fd, #a78bfa);
-  box-shadow: 0 5px 0 #6d5bb5;
+
+button:hover { transform: translateY(-2px); }
+button:disabled { opacity: .5; cursor: wait; transform: none; }
+
+#spinButton {
+  background: linear-gradient(135deg, #ffe08a, #ffb938);
+  color: #28202a;
+  min-width: 200px;
+  box-shadow: 0 5px 0 #b77a1b;
 }
-#copy { color: white; background: #475569; }
-#status { min-height: 24px; text-align: center; color: var(--muted); margin: 18px 0 0; }
+
+#resetButton {
+  background: #343e53;
+  color: white;
+}
+
 .result {
-  margin-top: 20px;
-  padding: 18px;
-  background: #312e46;
-  border: 1px solid #8b7bc4;
-  border-radius: 14px;
+  margin-top: 22px;
+  padding: 22px;
+  border: 1px solid #46516b;
+  border-radius: 18px;
+  background: #171c28dd;
 }
-.result h2 { margin: 0 0 10px; font-size: 16px; color: #c4b5fd; }
-#question { margin: 0; font-size: clamp(18px, 2.5vw, 26px); font-weight: 800; line-height: 1.7; }
-.note { color: var(--muted); font-size: 13px; line-height: 1.7; margin-top: 18px; }
+
+.result h2 { margin: 0 0 10px; font-size: 19px; }
+#resultTopic { font-size: clamp(19px, 3vw, 26px); font-weight: 750; line-height: 1.6; }
+#resultPath { color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+.notice {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 18px;
+}
+
+details {
+  margin-top: 26px;
+  padding: 16px;
+  background: #1c2230;
+  border-radius: 14px;
+  color: var(--muted);
+}
+
+details summary { cursor: pointer; color: var(--text); font-weight: 700; }
+details p { line-height: 1.8; }
+
 @media (max-width: 650px) {
-  body { padding: 12px; }
-  .panel { padding: 10px; }
-  .reels { gap: 4px; }
-  .reel-label { font-size: 11px; padding: 10px 2px; }
-  .reel-value { min-height: 105px; padding: 6px 3px; font-size: 12px; }
-  .reel:last-child .reel-value { font-size: 11px; }
-  button { padding: 13px 18px; }
+  main { padding-top: 22px; }
+  .reels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reel { min-height: 110px; }
+  .reel:last-child { grid-column: 1 / -1; }
+  .reel .value { font-size: 16px; }
+  #spinButton { width: 100%; }
 }
 </style>
 </head>
+
 <body>
 <main>
   <header>
     <h1>🎰 雑談ガチャ</h1>
-    <p class="subtitle">次に話すテーマをランダム抽選！</p>
+    <p>回してみよう。話すきっかけが見つかるかも。</p>
   </header>
 
-  <section class="panel">
-    <div class="reels" id="reels">
+  <section class="machine" aria-label="雑談ガチャ">
+    <div class="reels">
       <div class="reel">
-        <span class="reel-label" id="label0">大ジャンル</span>
-        <div class="reel-value" id="value0">？</div>
+        <div class="number">REEL 1 · 大ジャンル</div>
+        <div class="value" id="reel0">？？？</div>
       </div>
       <div class="reel">
-        <span class="reel-label" id="label1">中ジャンル</span>
-        <div class="reel-value" id="value1">？</div>
+        <div class="number" id="label1">REEL 2 · 中ジャンル</div>
+        <div class="value" id="reel1">？？？</div>
       </div>
       <div class="reel">
-        <span class="reel-label" id="label2">小ジャンル</span>
-        <div class="reel-value" id="value2">？</div>
+        <div class="number" id="label2">REEL 3 · 小ジャンル</div>
+        <div class="value" id="reel2">？？？</div>
       </div>
       <div class="reel">
-        <span class="reel-label" id="label3">深堀</span>
-        <div class="reel-value" id="value3">？</div>
+        <div class="number" id="label3">REEL 4 · 深掘り</div>
+        <div class="value" id="reel3">？？？</div>
       </div>
       <div class="reel">
-        <span class="reel-label" id="label4">お題</span>
-        <div class="reel-value" id="value4">抽選しよう！</div>
+        <div class="number" id="label4">REEL 5 · お題</div>
+        <div class="value" id="reel4">？？？</div>
       </div>
     </div>
 
     <div class="controls">
-      <button id="draw">🎰 ガチャを回す！</button>
-      <button id="copy" disabled>📋 お題をコピー</button>
+      <button id="spinButton">🎲 ガチャを回す！</button>
+      <button id="resetButton">↻ リセット</button>
     </div>
-    <p id="status" aria-live="polite">ボタンを押すと5つのリールが回るよ。</p>
-
-    <div class="result">
-      <h2>今回のお題</h2>
-      <p id="question">どんな話題が出るかな？</p>
-    </div>
-    <p class="note">
-      ※ 現在は動作確認用のサンプルデータです。今後、企画書の全ジャンル・具体的なお題を追加していきます。
-    </p>
   </section>
-</main>
 
+  <section class="result" aria-live="polite">
+    <h2>💬 今回のお題</h2>
+    <div id="resultTopic">「ガチャを回す！」を押してね。</div>
+    <p id="resultPath">どんなお題が出るかはお楽しみ！</p>
+  </section>
+
+  <p class="notice">音楽は専用構成。それ以外は通常構成で抽選します。</p>
+
+  <details>
+    <summary>📝 お題データについて</summary>
+    <p>
+      大ジャンルは固定ジャンル40種類と更新型ジャンル25種類を登録しています。
+      現在は動作確認用の基本版です。お題の追加や、ニュースなどの最新情報を
+      自動取得する機能はまだ実装していません。
+    </p>
+  </details>
+</main>
 
 <script>
 // ========================================
-// 1. お題データ
-// 新しいお題は、この配列に追加していく
+// 1. 大ジャンル：固定40種類
 // ========================================
-const topics = [
-  { big: "🎮 ゲーム", middle: "アクション", small: "💭 思い出・経験", deep: "初めてハマった作品", question: "初めてハマったアクションゲームは？" },
-  { big: "🎮 ゲーム", middle: "ゲーム全般", small: "🏆 ベスト・ランキング", deep: "好きな作品", question: "今まで遊んだ中で一番好きなゲームは？" },
-  { big: "🎮 ゲーム", middle: "ゲーム全般", small: "🪄 もしも・空想", deep: "ゲームの世界", question: "ゲームの世界に一つだけ入れるなら、どの作品？" },
-
-  { big: "🏝️ 地域・街", middle: "沖縄", small: "🏆 ベスト・ランキング", deep: "お気に入りの場所", question: "沖縄で一番好きな場所TOP3は？" },
-  { big: "🏝️ 地域・街", middle: "旅行", small: "🔮 未来・予想", deep: "行ってみたい場所", question: "いつか行ってみたい場所はどこ？" },
-
-  { big: "🤖 AI", middle: "ChatGPT", small: "🔮 未来・予想", deep: "暮らしの変化", question: "AIがもっと普及したら生活はどう変わると思う？" },
-
-  { big: "🍜 食べ物", middle: "ラーメン", small: "⚔️ 比較・対決", deep: "味の好み", question: "豚骨・醤油・味噌・塩なら、どれが一番好き？" },
-
-  { big: "🎬 映画・アニメ", middle: "アニメ", small: "💭 思い出・経験", deep: "子どもの頃", question: "子どもの頃に夢中になったアニメは？" },
-
-  { big: "💰 お金・生活", middle: "買い物", small: "💰 お金・価値", deep: "お金をかけたいもの", question: "多少高くても、お金をかけたいものは何？" },
-
-  { big: "🧠 雑学・知識", middle: "意外な知識", small: "❤️ 好き・嫌い", deep: "つい人に話したくなること", question: "つい誰かに話したくなる雑学はある？" },
-
-  { big: "🎵 音楽", musicSub: "ヴィジュアル系", middle: "ボーカル", small: "🏆 ベスト・ランキング", question: "一番好きなV系ボーカリストは？" },
-  { big: "🎵 音楽", musicSub: "アイドル", middle: "アイドル全般", small: "💭 思い出・経験", question: "初めてハマったアイドルは？" },
-  { big: "🎵 音楽", musicSub: "オーディオ・音質", middle: "音質・機材", small: "💰 お金・価値", question: "音質のためなら、いくらまでお金を出せる？" },
-  { big: "🎵 音楽", musicSub: "邦ロック", middle: "年代・時代", small: "⚔️ 比較・対決", question: "90年代邦ロックと00年代邦ロック、どっちが好き？" },
-  { big: "🎵 音楽", musicSub: "歌・ボーカル", middle: "歌唱・表現", small: "🤔 意見・考え", question: "歌が上手いって、結局どういうことだと思う？" },
-  { big: "🎵 音楽", musicSub: "音楽全般", middle: "音楽の楽しみ方", small: "🪄 もしも・空想", question: "一日だけ好きなアーティストと過ごせるなら何をする？" }
+const fixedGenres = [
+  "🎵 音楽",
+  "🎮 ゲーム",
+  "🎬 映画・ドラマ",
+  "📚 アニメ・漫画",
+  "📺 YouTube・動画",
+  "📻 ラジオ・ポッドキャスト",
+  "📖 本・小説",
+  "🏝️ 地域・街",
+  "🍜 食べ物・飲み物",
+  "☕ 日常生活",
+  "🛒 買い物",
+  "💻 ガジェット・IT",
+  "🚗 車・乗り物",
+  "🏃 スポーツ",
+  "🧠 勉強・学習",
+  "🔬 科学・宇宙",
+  "🏛️ 歴史",
+  "💰 お金・仕事",
+  "🧑‍🤝‍🧑 人間関係",
+  "🧠 心理・哲学",
+  "👗 ファッション",
+  "🏠 家・インテリア",
+  "🎨 芸術・創作",
+  "🎤 エンタメ・芸能",
+  "🕹️ 趣味・コレクション",
+  "🧳 旅行",
+  "🌿 自然・アウトドア",
+  "🐶 動物・ペット",
+  "👻 怖い話・不思議",
+  "😂 ネタ・お笑い",
+  "🕰️ 思い出・過去",
+  "💭 もしも・空想",
+  "⚖️ 比較・ランキング",
+  "🗣️ 言葉・日本語",
+  "🏪 店・サービス",
+  "🧪 身近な科学",
+  "🌍 世界・海外文化",
+  "🎲 運・ゲーム性",
+  "🧩 雑学",
+  "🗯️ 自分語り"
 ];
 
 // ========================================
-// 2. 小ジャンル共通リスト
+// 2. 更新型ジャンル：25種類
+// ※名前はあとから変更・追加できます
+// ========================================
+const updateGenres = [
+  "📰 国内ニュース",
+  "🌏 海外ニュース",
+  "🏛️ 政治",
+  "💴 経済",
+  "📈 株・投資",
+  "🤖 AI",
+  "🖥️ テクノロジー最新情報",
+  "🧬 科学の最新研究",
+  "🎮 ゲーム最新情報",
+  "📚 アニメ・漫画最新情報",
+  "🎬 映画・ドラマ最新情報",
+  "🎸 音楽最新情報",
+  "🏆 スポーツ最新情報",
+  "🌺 沖縄ニュース",
+  "🚦 交通・防災情報",
+  "🩺 健康情報",
+  "🎓 教育・学校",
+  "⚖️ 法律・社会問題",
+  "🌏 環境・気候変動",
+  "🚀 宇宙開発の最新情報",
+  "🏢 企業・ビジネス",
+  "📱 ネットの話題",
+  "💬 SNSの話題",
+  "🛍️ 新商品・新サービス",
+  "🎪 イベント・催し"
+];
+
+const bigGenres = [...fixedGenres, ...updateGenres];
+
+// ========================================
+// 3. 共通の小ジャンル：10種類
 // ========================================
 const smallTypes = [
   "❤️ 好き・嫌い",
@@ -210,144 +329,246 @@ const smallTypes = [
 ];
 
 // ========================================
-// 3. 抽選の状態管理
+// 4. 中ジャンル候補
+// ========================================
+const middleTypes = [
+  "魅力・面白さ",
+  "好きになったきっかけ",
+  "おすすめ・お気に入り",
+  "思い出・体験",
+  "意外な一面",
+  "昔と今の違い",
+  "良いところ・困るところ",
+  "初心者向けの話",
+  "こだわり・マイルール",
+  "今後の変化"
+];
+
+// ========================================
+// 5. 深掘り候補
+// ========================================
+const deepTypes = [
+  "理由を考える",
+  "具体例を挙げる",
+  "他のものと比べる",
+  "自分の経験を振り返る",
+  "反対の立場から考える",
+  "将来どうなるか考える",
+  "一つだけ選んで語る",
+  "人にすすめるならどうするか考える"
+];
+
+// ========================================
+// 6. 音楽専用サブジャンル
+// ========================================
+const musicSubgenres = [
+  "ヴィジュアル系",
+  "ロック",
+  "ポップス",
+  "アニメ・ゲーム音楽",
+  "ボーカロイド",
+  "メタル",
+  "パンク",
+  "オルタナティブ",
+  "エレクトロニック",
+  "ヒップホップ・ラップ",
+  "アイドル音楽",
+  "歌謡曲・懐メロ",
+  "インストゥルメンタル",
+  "その他の音楽"
+];
+
+// ========================================
+// 7. お題データ
+// big と topic を追加すれば、お題を増やせます。
+// ========================================
+const topics = [
+  { big: "🎵 音楽", topic: "今まで聴いた中で、特に心に残っている曲は？" },
+  { big: "🎵 音楽", topic: "好きなアーティストの魅力を一つ挙げるなら？" },
+  { big: "🎵 音楽", topic: "ライブで一度は体験してみたいことは？" },
+  { big: "🎮 ゲーム", topic: "今まで一番夢中になったゲームは？" },
+  { big: "🎮 ゲーム", topic: "ゲームで一番うれしかった瞬間は？" },
+  { big: "🎬 映画・ドラマ", topic: "何度でも見返したくなる作品は？" },
+  { big: "📚 アニメ・漫画", topic: "人にすすめたい作品と、その理由は？" },
+  { big: "📺 YouTube・動画", topic: "つい時間を忘れて見てしまう動画は？" },
+  { big: "📖 本・小説", topic: "読んでよかったと思う本は？" },
+  { big: "🏝️ 地域・街", topic: "地元で人にすすめたい場所は？" },
+  { big: "🍜 食べ物・飲み物", topic: "最後の晩餐に選びたい食べ物は？" },
+  { big: "☕ 日常生活", topic: "毎日の生活で欠かせないものは？" },
+  { big: "🛒 買い物", topic: "買ってよかったと思うものは？" },
+  { big: "💻 ガジェット・IT", topic: "生活が便利になったと感じる道具は？" },
+  { big: "🚗 車・乗り物", topic: "理想の乗り物やドライブ先は？" },
+  { big: "🏃 スポーツ", topic: "見ていて面白いスポーツは？" },
+  { big: "🧠 勉強・学習", topic: "今から学んでみたいことは？" },
+  { big: "🔬 科学・宇宙", topic: "宇宙について一つ知れるなら何を知りたい？" },
+  { big: "🏛️ 歴史", topic: "実際に見てみたい歴史上の出来事は？" },
+  { big: "💰 お金・仕事", topic: "仕事で大切にしたいことは？" },
+  { big: "🧑‍🤝‍🧑 人間関係", topic: "一緒にいて居心地がいい人の特徴は？" },
+  { big: "🧠 心理・哲学", topic: "人によって意見が分かれそうな考えは？" },
+  { big: "👗 ファッション", topic: "見た目や服装でこだわることは？" },
+  { big: "🏠 家・インテリア", topic: "理想の部屋に一つだけ追加するなら？" },
+  { big: "🎨 芸術・創作", topic: "自分で作ってみたい作品は？" },
+  { big: "🎤 エンタメ・芸能", topic: "最近気になったエンタメは？" },
+  { big: "🕹️ 趣味・コレクション", topic: "お金や時間をかけても好きな趣味は？" },
+  { big: "🧳 旅行", topic: "もう一度行きたい場所、または行きたい場所は？" },
+  { big: "🌿 自然・アウトドア", topic: "自然の中で過ごすなら何をしたい？" },
+  { big: "🐶 動物・ペット", topic: "一緒に暮らしてみたい動物は？" },
+  { big: "👻 怖い話・不思議", topic: "説明できないけど不思議だと思うことは？" },
+  { big: "😂 ネタ・お笑い", topic: "最近笑ったことは？" },
+  { big: "🕰️ 思い出・過去", topic: "子どもの頃に夢中だったことは？" },
+  { big: "💭 もしも・空想", topic: "一日だけ何でもできるなら何をする？" },
+  { big: "⚖️ 比較・ランキング", topic: "自分の中でベスト3を決めるなら？" },
+  { big: "🗣️ 言葉・日本語", topic: "好きな言葉や、面白いと思う言い回しは？" },
+  { big: "🏪 店・サービス", topic: "また利用したいと思う店の特徴は？" },
+  { big: "🧪 身近な科学", topic: "身近にあるもので仕組みが気になるものは？" },
+  { big: "🌍 世界・海外文化", topic: "知って驚いた海外の文化は？" },
+  { big: "🎲 運・ゲーム性", topic: "運が良かったと思う出来事は？" },
+  { big: "🧩 雑学", topic: "人に話したくなる雑学は？" },
+  { big: "🗯️ 自分語り", topic: "自分の意外な一面を一つ挙げるなら？" },
+
+  { big: "📰 国内ニュース", topic: "最近の国内ニュースで気になったことは？" },
+  { big: "🌏 海外ニュース", topic: "海外で起きていることで知りたいことは？" },
+  { big: "🏛️ 政治", topic: "暮らしに関係する政策で気になるものは？" },
+  { big: "💴 経済", topic: "物価や景気の変化を感じる場面は？" },
+  { big: "📈 株・投資", topic: "投資を始める前に知っておきたいことは？" },
+  { big: "🤖 AI", topic: "AIに任せたいこと、人間がしたいことは？" },
+  { big: "🖥️ テクノロジー最新情報", topic: "今後広まりそうな技術は？" },
+  { big: "🧬 科学の最新研究", topic: "科学で解明してほしい疑問は？" },
+  { big: "🎮 ゲーム最新情報", topic: "今後遊んでみたいゲームは？" },
+  { big: "📚 アニメ・漫画最新情報", topic: "今後注目したい作品は？" },
+  { big: "🎬 映画・ドラマ最新情報", topic: "今後見てみたい作品は？" },
+  { big: "🎸 音楽最新情報", topic: "新しく発見したい音楽は？" },
+  { big: "🏆 スポーツ最新情報", topic: "注目しているチームや選手は？" },
+  { big: "🌺 沖縄ニュース", topic: "沖縄がもっと便利になるとしたら何が必要？" },
+  { big: "🚦 交通・防災情報", topic: "普段から備えておきたいことは？" },
+  { big: "🩺 健康情報", topic: "健康のために続けている習慣は？" },
+  { big: "🎓 教育・学校", topic: "学校で教えてほしかったことは？" },
+  { big: "⚖️ 法律・社会問題", topic: "社会のルールで考えてみたいことは？" },
+  { big: "🌏 環境・気候変動", topic: "身近で変化したと感じる自然現象は？" },
+  { big: "🚀 宇宙開発の最新情報", topic: "宇宙旅行ができたら行ってみたい？" },
+  { big: "🏢 企業・ビジネス", topic: "良いサービスを提供する企業の特徴は？" },
+  { big: "📱 ネットの話題", topic: "ネットで話題になるものの共通点は？" },
+  { big: "💬 SNSの話題", topic: "SNSの便利なところ、難しいところは？" },
+  { big: "🛍️ 新商品・新サービス", topic: "こんな商品やサービスがあったら便利なのに、と思うものは？" },
+  { big: "🎪 イベント・催し", topic: "行ってみたいイベントは？" }
+];
+
+// ========================================
+// 8. 抽選処理
 // ========================================
 const $ = id => document.getElementById(id);
 
-let currentTopic = null;
-let previousTopic = null;
-let previousBig = null;
-let busy = false;
+const reels = [0, 1, 2, 3, 4].map(i => $("reel" + i));
+const reelCards = document.querySelectorAll(".reel");
+const spinButton = $("spinButton");
 
-function choose(list) {
+function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-// ========================================
-// 4. 抽選ルール
-// 大ジャンルを先に選び、そのジャンル内からお題を選ぶ
-// ========================================
-function drawTopic() {
-  const bigGenres = [...new Set(topics.map(topic => topic.big))];
+function getTopicForGenre(big) {
+  const matches = topics.filter(item => item.big === big);
+  if (matches.length) return pick(matches).topic;
 
-  // 直前と同じ大ジャンルを避ける
-  let availableGenres = bigGenres.filter(big => big !== previousBig);
-
-  if (availableGenres.length === 0) {
-    availableGenres = bigGenres;
-  }
-
-  const selectedBig = choose(availableGenres);
-
-  // 選んだ大ジャンルに属するお題だけを候補にする
-  let candidates = topics.filter(topic => topic.big === selectedBig);
-
-  // 直前と同じお題を避ける
-  if (candidates.length > 1 && previousTopic) {
-    const withoutPrevious = candidates.filter(
-      topic => topic.question !== previousTopic.question
-    );
-
-    if (withoutPrevious.length > 0) {
-      candidates = withoutPrevious;
-    }
-  }
-
-  return choose(candidates);
+  // お題未登録のジャンルでも空欄にならないための予備
+  return `「${big}」について、好きなところや気になることを語るなら？`;
 }
 
-// ========================================
-// 5. リールの表示
-// ========================================
-function getDisplay(topic) {
-  const isMusic = topic.big.includes("音楽");
+function createResult() {
+  const big = pick(bigGenres);
+  const small = pick(smallTypes);
+  const middle = pick(middleTypes);
+  const deep = pick(deepTypes);
+  const topic = getTopicForGenre(big);
 
-  const labels = isMusic
-    ? ["大ジャンル", "音楽サブ", "中ジャンル", "小ジャンル", "お題"]
-    : ["大ジャンル", "中ジャンル", "小ジャンル", "深堀", "お題"];
+  if (big === "🎵 音楽") {
+    const sub = pick(musicSubgenres);
+    $("label1").textContent = "REEL 2 · 音楽サブジャンル";
+    $("label2").textContent = "REEL 3 · 中ジャンル";
+    $("label3").textContent = "REEL 4 · 小ジャンル";
+    $("label4").textContent = "REEL 5 · お題";
 
-  const values = isMusic
-    ? [topic.big, topic.musicSub, topic.middle, topic.small, topic.question]
-    : [topic.big, topic.middle, topic.small, topic.deep, topic.question];
-
-  return { labels, values };
-}
-
-function showTopic(topic) {
-  const { labels, values } = getDisplay(topic);
-
-  for (let i = 0; i < 5; i++) {
-    $("label" + i).textContent = labels[i];
-    $("value" + i).textContent = values[i] || "—";
+    return {
+      values: [big, sub, middle, small, topic],
+      path: `${big} → ${sub} → ${middle} → ${small}`,
+      topic
+    };
   }
 
-  $("question").textContent = topic.question;
-  $("copy").disabled = false;
+  $("label1").textContent = "REEL 2 · 中ジャンル";
+  $("label2").textContent = "REEL 3 · 小ジャンル";
+  $("label3").textContent = "REEL 4 · 深掘り";
+  $("label4").textContent = "REEL 5 · お題";
+
+  return {
+    values: [big, middle, small, deep, topic],
+    path: `${big} → ${middle} → ${small} → ${deep}`,
+    topic
+  };
 }
 
-// ========================================
-// 6. スロット演出
-// ========================================
+let busy = false;
+
 function spin() {
-  if (busy || topics.length === 0) return;
-
+  if (busy) return;
   busy = true;
-  $("draw").disabled = true;
-  $("copy").disabled = true;
-  $("status").textContent = "抽選中……";
+  spinButton.disabled = true;
+  $("resetButton").disabled = true;
 
-  const reels = document.querySelectorAll(".reel");
-  reels.forEach(el => el.classList.add("spinning"));
+  const result = createResult();
 
-  const topic = drawTopic();
-  const { labels, values } = getDisplay(topic);
+  reelCards.forEach(card => card.classList.add("spinning"));
 
-  for (let i = 0; i < 5; i++) {
-    setTimeout(() => {
-      $("label" + i).textContent = labels[i];
-      $("value" + i).textContent = values[i] || "—";
-      reels[i].classList.remove("spinning");
+  let ticks = 0;
+  const interval = setInterval(() => {
+    reels.forEach((reel, i) => {
+      reel.textContent = pick([
+        "？？？", "🎰", "抽選中…", "✨", "🎲"
+      ]);
+    });
 
-      if (i === 4) {
-        currentTopic = topic;
-        previousTopic = topic;
-        previousBig = topic.big;
+    ticks++;
 
-        $("question").textContent = topic.question;
-        $("copy").disabled = false;
-        $("draw").disabled = false;
-        $("status").textContent = "抽選完了！ 次のお題も回してみよう。";
-        busy = false;
-      }
-    }, 450 + i * 350);
-  }
+    if (ticks >= 12) {
+      clearInterval(interval);
+
+      result.values.forEach((value, i) => {
+        reels[i].textContent = value;
+      });
+
+      reelCards.forEach(card => card.classList.remove("spinning"));
+
+      $("resultTopic").textContent = result.topic;
+      $("resultPath").textContent = result.path;
+
+      busy = false;
+      spinButton.disabled = false;
+      $("resetButton").disabled = false;
+    }
+  }, 100);
 }
 
-// ========================================
-// 7. ボタン操作・コピー
-// ========================================
-$("draw").addEventListener("click", spin);
+function reset() {
+  if (busy) return;
 
-$("copy").addEventListener("click", async () => {
-  if (!currentTopic) return;
+  reels.forEach(reel => reel.textContent = "？？？");
 
-  try {
-    await navigator.clipboard.writeText(currentTopic.question);
-    $("status").textContent = "お題をコピーしたよ！";
-  } catch {
-    const area = document.createElement("textarea");
-    area.value = currentTopic.question;
-    document.body.appendChild(area);
-    area.select();
+  $("label1").textContent = "REEL 2 · 中ジャンル";
+  $("label2").textContent = "REEL 3 · 小ジャンル";
+  $("label3").textContent = "REEL 4 · 深掘り";
+  $("label4").textContent = "REEL 5 · お題";
 
-    const copied = document.execCommand("copy");
-    area.remove();
+  $("resultTopic").textContent = "「ガチャを回す！」を押してね。";
+  $("resultPath").textContent = "どんなお題が出るかはお楽しみ！";
+}
 
-    $("status").textContent = copied
-      ? "お題をコピーしたよ！"
-      : "コピーできなかったため、お題を手動でコピーしてね。";
-  }
-});
+spinButton.addEventListener("click", spin);
+$("resetButton").addEventListener("click", reset);
+
+// 起動時のジャンル数チェック
+console.log("固定ジャンル:", fixedGenres.length);
+console.log("更新型ジャンル:", updateGenres.length);
+console.log("合計ジャンル:", bigGenres.length);
 </script>
 </body>
 </html>
