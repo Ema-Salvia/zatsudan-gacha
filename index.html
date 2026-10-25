@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雑談ガチャ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f5fa;
+      color: #222;
+      text-align: center;
+      padding: 30px 16px;
+      margin: 0;
+    }
+    main {
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 28px 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 18px #0001;
+    }
+    h1 { color: #3857a6; }
+    select, button {
+      font-size: 16px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      margin: 8px;
+    }
+    select { border: 1px solid #ccc; }
+    button {
+      border: none;
+      background: #3857a6;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background: #263f82; }
+    #topic {
+      margin: 28px 0;
+      padding: 24px 12px;
+      background: #eef2ff;
+      border-radius: 14px;
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+    #category { color: #64748b; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🎲 雑談ガチャ</h1>
+    <p>話題に困ったら、回してみよう！</p>
+
+    <label for="genre">ジャンル：</label>
+    <select id="genre">
+      <option value="all">全部</option>
+      <option value="日常">日常</option>
+      <option value="趣味">趣味</option>
+      <option value="もしも">もしも</option>
+      <option value="価値観">価値観</option>
+    </select>
+
+    <div id="category">お題を引いてみよう</div>
+    <div id="topic">今日の雑談テーマは？</div>
+
+    <button onclick="drawTopic()">ガチャを回す！</button>
+    <button onclick="copyTopic()">お題をコピー</button>
+  </main>
+
+  <script>
+    const topics = [
+      { genre: "日常", text: "最近、ちょっと嬉しかったことは？" },
+      { genre: "日常", text: "最近食べて美味しかったものは？" },
+      { genre: "日常", text: "休みの日は何をして過ごしたい？" },
+      { genre: "趣味", text: "今、一番ハマっているものは？" },
+      { genre: "趣味", text: "人生で一番好きなゲームは？" },
+      { genre: "趣味", text: "おすすめしたい音楽や映画は？" },
+      { genre: "もしも", text: "1か月休みになったら何をする？" },
+      { genre: "もしも", text: "宝くじで1億円当たったら？" },
+      { genre: "もしも", text: "好きな能力を1つ使えるなら？" },
+      { genre: "価値観", text: "お金と時間、どちらが大事？" },
+      { genre: "価値観", text: "大人になってから気づいたことは？" },
+      { genre: "価値観", text: "これだけは譲れないというものは？" }
+    ];
+
+    let lastTopic = "";
+
+    function drawTopic() {
+      const genre = document.getElementById("genre").value;
+      const candidates = topics.filter(topic =>
+        (genre === "all" || topic.genre === genre) &&
+        (topics.filter(t => genre === "all" || t.genre === genre).length === 1
+          || topic.text !== lastTopic)
+      );
+
+      if (candidates.length === 0) return;
+
+      const selected = candidates[
+        Math.floor(Math.random() * candidates.length)
+      ];
+
+      document.getElementById("category").textContent =
+        "ジャンル：" + selected.genre;
+      document.getElementById("topic").textContent = selected.text;
+      lastTopic = selected.text;
+    }
+
+    async function copyTopic() {
+      const text = document.getElementById("topic").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("お題をコピーしたよ！");
+      } catch {
+        alert("コピーできなかったので、お題を選択してコピーしてね。");
+      }
+    }
+  </script>
+</body>
+</html>
