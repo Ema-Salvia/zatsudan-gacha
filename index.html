@@ -2,122 +2,383 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>雑談ガチャ</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f2f5fa;
-      color: #222;
-      text-align: center;
-      padding: 30px 16px;
-      margin: 0;
-    }
-    main {
-      max-width: 600px;
-      margin: 30px auto;
-      background: white;
-      padding: 28px 20px;
-      border-radius: 20px;
-      box-shadow: 0 4px 18px #0001;
-    }
-    h1 { color: #3857a6; }
-    select, button {
-      font-size: 16px;
-      padding: 12px 18px;
-      border-radius: 10px;
-      margin: 8px;
-    }
-    select { border: 1px solid #ccc; }
-    button {
-      border: none;
-      background: #3857a6;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover { background: #263f82; }
-    #topic {
-      margin: 28px 0;
-      padding: 24px 12px;
-      background: #eef2ff;
-      border-radius: 14px;
-      font-size: 22px;
-      font-weight: bold;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
-    }
-    #category { color: #64748b; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>雑談ガチャ</title>
+<style>
+:root {
+  --bg: #111827;
+  --panel: #1f2937;
+  --cell: #273449;
+  --accent: #a78bfa;
+  --text: #f9fafb;
+  --muted: #9ca3af;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px;
+  color: var(--text);
+  background: radial-gradient(circle at top, #28324c, var(--bg) 65%);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 1250px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 28px; }
+h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 42px); }
+.subtitle { color: var(--muted); margin: 0; }
+.panel {
+  background: rgba(31,41,55,.94);
+  border: 1px solid #475569;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 15px 45px #0004;
+}
+.reels {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+.reel {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--cell);
+  border: 1px solid #475569;
+  text-align: center;
+}
+.reel-label {
+  display: block;
+  padding: 12px 4px;
+  background: #374151;
+  color: #ddd6fe;
+  font-weight: 800;
+  font-size: 14px;
+}
+.reel-value {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 112px;
+  padding: 12px 6px;
+  overflow-wrap: anywhere;
+  font-size: clamp(13px, 1.5vw, 19px);
+  font-weight: 700;
+}
+.reel:last-child .reel-value { font-size: clamp(12px, 1.3vw, 16px); }
+.reel.spinning .reel-value { animation: flash .12s linear infinite alternate; }
+@keyframes flash {
+  from { opacity: .45; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(2px); }
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+button:disabled { opacity: .55; cursor: wait; }
+#draw {
+  color: #1f1635;
+  background: linear-gradient(135deg, #c4b5fd, #a78bfa);
+  box-shadow: 0 5px 0 #6d5bb5;
+}
+#copy { color: white; background: #475569; }
+#status { min-height: 24px; text-align: center; color: var(--muted); margin: 18px 0 0; }
+.result {
+  margin-top: 20px;
+  padding: 18px;
+  background: #312e46;
+  border: 1px solid #8b7bc4;
+  border-radius: 14px;
+}
+.result h2 { margin: 0 0 10px; font-size: 16px; color: #c4b5fd; }
+#question { margin: 0; font-size: clamp(18px, 2.5vw, 26px); font-weight: 800; line-height: 1.7; }
+.note { color: var(--muted); font-size: 13px; line-height: 1.7; margin-top: 18px; }
+@media (max-width: 650px) {
+  body { padding: 12px; }
+  .panel { padding: 10px; }
+  .reels { gap: 4px; }
+  .reel-label { font-size: 11px; padding: 10px 2px; }
+  .reel-value { min-height: 105px; padding: 6px 3px; font-size: 12px; }
+  .reel:last-child .reel-value { font-size: 11px; }
+  button { padding: 13px 18px; }
+}
+</style>
 </head>
 <body>
-  <main>
-    <h1>🎲 雑談ガチャ</h1>
-    <p>話題に困ったら、回してみよう！</p>
+<main>
+  <header>
+    <h1>🎰 雑談ガチャ</h1>
+    <p class="subtitle">次に話すテーマをランダム抽選！</p>
+  </header>
 
-    <label for="genre">ジャンル：</label>
-    <select id="genre">
-      <option value="all">全部</option>
-      <option value="日常">日常</option>
-      <option value="趣味">趣味</option>
-      <option value="もしも">もしも</option>
-      <option value="価値観">価値観</option>
-    </select>
+  <section class="panel">
+    <div class="reels" id="reels">
+      <div class="reel">
+        <span class="reel-label" id="label0">大ジャンル</span>
+        <div class="reel-value" id="value0">？</div>
+      </div>
+      <div class="reel">
+        <span class="reel-label" id="label1">中ジャンル</span>
+        <div class="reel-value" id="value1">？</div>
+      </div>
+      <div class="reel">
+        <span class="reel-label" id="label2">小ジャンル</span>
+        <div class="reel-value" id="value2">？</div>
+      </div>
+      <div class="reel">
+        <span class="reel-label" id="label3">深堀</span>
+        <div class="reel-value" id="value3">？</div>
+      </div>
+      <div class="reel">
+        <span class="reel-label" id="label4">お題</span>
+        <div class="reel-value" id="value4">抽選しよう！</div>
+      </div>
+    </div>
 
-    <div id="category">お題を引いてみよう</div>
-    <div id="topic">今日の雑談テーマは？</div>
+    <div class="controls">
+      <button id="draw">🎰 ガチャを回す！</button>
+      <button id="copy" disabled>📋 お題をコピー</button>
+    </div>
+    <p id="status" aria-live="polite">ボタンを押すと5つのリールが回るよ。</p>
 
-    <button onclick="drawTopic()">ガチャを回す！</button>
-    <button onclick="copyTopic()">お題をコピー</button>
-  </main>
+    <div class="result">
+      <h2>今回のお題</h2>
+      <p id="question">どんな話題が出るかな？</p>
+    </div>
+    <p class="note">
+      ※ 現在は動作確認用のサンプルデータです。今後、企画書の全ジャンル・具体的なお題を追加していきます。
+    </p>
+  </section>
+</main>
 
-  <script>
-    const topics = [
-      { genre: "日常", text: "最近、ちょっと嬉しかったことは？" },
-      { genre: "日常", text: "最近食べて美味しかったものは？" },
-      { genre: "日常", text: "休みの日は何をして過ごしたい？" },
-      { genre: "趣味", text: "今、一番ハマっているものは？" },
-      { genre: "趣味", text: "人生で一番好きなゲームは？" },
-      { genre: "趣味", text: "おすすめしたい音楽や映画は？" },
-      { genre: "もしも", text: "1か月休みになったら何をする？" },
-      { genre: "もしも", text: "宝くじで1億円当たったら？" },
-      { genre: "もしも", text: "好きな能力を1つ使えるなら？" },
-      { genre: "価値観", text: "お金と時間、どちらが大事？" },
-      { genre: "価値観", text: "大人になってから気づいたことは？" },
-      { genre: "価値観", text: "これだけは譲れないというものは？" }
-    ];
+<script>
+// お題データ：ここに追加することでガチャの種類を増やせます。
+// 通常：big → middle → small → deep → question
+// 音楽：big → musicSub → middle → small → question
+const topics = [
+  {
+    big: "🎮 ゲーム",
+    middle: "アクション",
+    small: "💭 思い出・経験",
+    deep: "初めてハマった作品",
+    question: "初めてハマったアクションゲームは？"
+  },
+  {
+    big: "🎮 ゲーム",
+    middle: "ゲーム全般",
+    small: "🏆 ベスト・ランキング",
+    deep: "好きな作品",
+    question: "今まで遊んだ中で一番好きなゲームは？"
+  },
+  {
+    big: "🏝️ 地域・街",
+    middle: "沖縄",
+    small: "🏆 ベスト・ランキング",
+    deep: "お気に入りの場所",
+    question: "沖縄で一番好きな場所TOP3は？"
+  },
+  {
+    big: "🤖 AI",
+    middle: "ChatGPT",
+    small: "🔮 未来・予想",
+    deep: "暮らしの変化",
+    question: "AIがもっと普及したら生活はどう変わると思う？"
+  },
+  {
+    big: "🍜 食べ物",
+    middle: "ラーメン",
+    small: "⚔️ 比較・対決",
+    deep: "味の好み",
+    question: "豚骨・醤油・味噌・塩なら、どれが一番好き？"
+  },
+  {
+    big: "🎬 映画・アニメ",
+    middle: "アニメ",
+    small: "💭 思い出・経験",
+    deep: "子どもの頃",
+    question: "子どもの頃に夢中になったアニメは？"
+  },
+  {
+    big: "💰 お金・生活",
+    middle: "買い物",
+    small: "💰 お金・価値",
+    deep: "お金をかけたいもの",
+    question: "多少高くても、お金をかけたいものは何？"
+  },
+  {
+    big: "🧠 雑学・知識",
+    middle: "意外な知識",
+    small: "❤️ 好き・嫌い",
+    deep: "つい人に話したくなること",
+    question: "つい誰かに話したくなる雑学はある？"
+  },
+  {
+    big: "🎵 音楽",
+    musicSub: "ヴィジュアル系",
+    middle: "ボーカル",
+    small: "🏆 ベスト・ランキング",
+    question: "一番好きなV系ボーカリストは？"
+  },
+  {
+    big: "🎵 音楽",
+    musicSub: "アイドル",
+    middle: "アイドル全般",
+    small: "💭 思い出・経験",
+    question: "初めてハマったアイドルは？"
+  },
+  {
+    big: "🎵 音楽",
+    musicSub: "オーディオ・音質",
+    middle: "音質・機材",
+    small: "💰 お金・価値",
+    question: "音質のためなら、いくらまでお金を出せる？"
+  },
+  {
+    big: "🎵 音楽",
+    musicSub: "邦ロック",
+    middle: "年代・時代",
+    small: "⚔️ 比較・対決",
+    question: "90年代邦ロックと00年代邦ロック、どっちが好き？"
+  },
+  {
+    big: "🎵 音楽",
+    musicSub: "歌・ボーカル",
+    middle: "歌唱・表現",
+    small: "🤔 意見・考え",
+    question: "歌が上手いって、結局どういうことだと思う？"
+  },
+  {
+    big: "🎵 音楽",
+    musicSub: "音楽全般",
+    middle: "音楽の楽しみ方",
+    small: "🪄 もしも・空想",
+    question: "一日だけ好きなアーティストと過ごせるなら何をする？"
+  },
+  {
+    big: "🎮 ゲーム",
+    middle: "ゲーム全般",
+    small: "🪄 もしも・空想",
+    deep: "ゲームの世界",
+    question: "ゲームの世界に一つだけ入れるなら、どの作品？"
+  },
+  {
+    big: "🏝️ 地域・街",
+    middle: "旅行",
+    small: "🔮 未来・予想",
+    deep: "行ってみたい場所",
+    question: "いつか行ってみたい場所はどこ？"
+  }
+];
 
-    let lastTopic = "";
+const smallTypes = [
+  "❤️ 好き・嫌い",
+  "🏆 ベスト・ランキング",
+  "💭 思い出・経験",
+  "🤔 意見・考え",
+  "⚔️ 比較・対決",
+  "🔮 未来・予想",
+  "💰 お金・価値",
+  "😂 ネタ・珍話",
+  "🧠 知識・雑学",
+  "🪄 もしも・空想"
+];
 
-    function drawTopic() {
-      const genre = document.getElementById("genre").value;
-      const candidates = topics.filter(topic =>
-        (genre === "all" || topic.genre === genre) &&
-        (topics.filter(t => genre === "all" || t.genre === genre).length === 1
-          || topic.text !== lastTopic)
-      );
+const $ = id => document.getElementById(id);
+let currentTopic = null;
+let busy = false;
 
-      if (candidates.length === 0) return;
+function choose(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
 
-      const selected = candidates[
-        Math.floor(Math.random() * candidates.length)
-      ];
+function showTopic(topic) {
+  const isMusic = topic.big.includes("音楽");
 
-      document.getElementById("category").textContent =
-        "ジャンル：" + selected.genre;
-      document.getElementById("topic").textContent = selected.text;
-      lastTopic = selected.text;
-    }
+  const labels = isMusic
+    ? ["大ジャンル", "音楽サブ", "中ジャンル", "小ジャンル", "お題"]
+    : ["大ジャンル", "中ジャンル", "小ジャンル", "深堀", "お題"];
 
-    async function copyTopic() {
-      const text = document.getElementById("topic").textContent;
-      try {
-        await navigator.clipboard.writeText(text);
-        alert("お題をコピーしたよ！");
-      } catch {
-        alert("コピーできなかったので、お題を選択してコピーしてね。");
+  const values = isMusic
+    ? [topic.big, topic.musicSub, topic.middle, topic.small, topic.question]
+    : [topic.big, topic.middle, topic.small, topic.deep, topic.question];
+
+  for (let i = 0; i < 5; i++) {
+    $("label" + i).textContent = labels[i];
+    $("value" + i).textContent = values[i] || "—";
+  }
+
+  $("question").textContent = topic.question;
+  $("copy").disabled = false;
+}
+
+function spin() {
+  if (busy) return;
+  busy = true;
+  $("draw").disabled = true;
+  $("copy").disabled = true;
+  $("status").textContent = "抽選中……";
+
+  const reels = document.querySelectorAll(".reel");
+  reels.forEach(el => el.classList.add("spinning"));
+
+  const topic = choose(topics);
+  const isMusic = topic.big.includes("音楽");
+
+  const labels = isMusic
+    ? ["大ジャンル", "音楽サブ", "中ジャンル", "小ジャンル", "お題"]
+    : ["大ジャンル", "中ジャンル", "小ジャンル", "深堀", "お題"];
+
+  const values = isMusic
+    ? [topic.big, topic.musicSub, topic.middle, topic.small, topic.question]
+    : [topic.big, topic.middle, topic.small, topic.deep, topic.question];
+
+  // リールを順番に止めていく
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      $("label" + i).textContent = labels[i];
+      $("value" + i).textContent = values[i] || "—";
+      reels[i].classList.remove("spinning");
+
+      if (i === 4) {
+        currentTopic = topic;
+        $("question").textContent = topic.question;
+        $("copy").disabled = false;
+        $("draw").disabled = false;
+        $("status").textContent = "抽選完了！ 次のお題も回してみよう。";
+        busy = false;
       }
-    }
-  </script>
+    }, 450 + i * 350);
+  }
+}
+
+$("draw").addEventListener("click", spin);
+
+$("copy").addEventListener("click", async () => {
+  if (!currentTopic) return;
+  const text = currentTopic.question;
+  try {
+    await navigator.clipboard.writeText(text);
+    $("status").textContent = "お題をコピーしたよ！";
+  } catch {
+    const area = document.createElement("textarea");
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+    $("status").textContent = "お題をコピーしたよ！";
+  }
+});
+</script>
 </body>
 </html>
