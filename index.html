@@ -120,6 +120,12 @@ button:disabled { opacity: .5; cursor: wait; transform: none; }
   box-shadow: 0 5px 0 #b77a1b;
 }
 
+#newsButton {
+  background: linear-gradient(135deg, #9bd4ff, #6598ff);
+  color: #17233c;
+  box-shadow: 0 5px 0 #365d9e;
+}
+
 #resetButton {
   background: #343e53;
   color: white;
@@ -134,8 +140,31 @@ button:disabled { opacity: .5; cursor: wait; transform: none; }
 }
 
 .result h2 { margin: 0 0 10px; font-size: 19px; }
-#resultTopic { font-size: clamp(19px, 3vw, 26px); font-weight: 750; line-height: 1.6; }
-#resultPath { color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+#resultTopic {
+  font-size: clamp(19px, 3vw, 26px);
+  font-weight: 750;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+#resultPath {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+#newsLink {
+  display: none;
+  margin-top: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+#newsLink a {
+  color: var(--blue);
+}
 
 .notice {
   text-align: center;
@@ -152,7 +181,12 @@ details {
   color: var(--muted);
 }
 
-details summary { cursor: pointer; color: var(--text); font-weight: 700; }
+details summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 700;
+}
+
 details p { line-height: 1.8; }
 
 @media (max-width: 650px) {
@@ -161,7 +195,7 @@ details p { line-height: 1.8; }
   .reel { min-height: 110px; }
   .reel:last-child { grid-column: 1 / -1; }
   .reel .value { font-size: 16px; }
-  #spinButton { width: 100%; }
+  #spinButton, #newsButton { width: 100%; }
 }
 </style>
 </head>
@@ -199,6 +233,7 @@ details p { line-height: 1.8; }
 
     <div class="controls">
       <button id="spinButton">🎲 ガチャを回す！</button>
+      <button id="newsButton">📰 ニュースでガチャ</button>
       <button id="resetButton">↻ リセット</button>
     </div>
   </section>
@@ -207,16 +242,22 @@ details p { line-height: 1.8; }
     <h2>💬 今回のお題</h2>
     <div id="resultTopic">「ガチャを回す！」を押してね。</div>
     <p id="resultPath">どんなお題が出るかはお楽しみ！</p>
+    <div id="newsLink"></div>
   </section>
 
-  <p class="notice">音楽は専用構成。それ以外は通常構成で抽選します。</p>
+  <p class="notice">
+    音楽は専用構成。それ以外は通常構成で抽選します。
+    ニュースガチャでは最新ニュースを取得します。
+  </p>
 
   <details>
     <summary>📝 お題データについて</summary>
     <p>
       大ジャンルは固定ジャンル40種類と更新型ジャンル25種類を登録しています。
-      現在は動作確認用の基本版です。お題の追加や、ニュースなどの最新情報を
-      自動取得する機能はまだ実装していません。
+      通常ガチャは登録済みのお題から抽選します。
+      ニュースガチャでは、ニュースAPIから取得した記事を使って
+      会話のお題を生成します。ニュースを取得できない場合でも、
+      通常ガチャは引き続き利用できます。
     </p>
   </details>
 </main>
@@ -270,7 +311,6 @@ const fixedGenres = [
 
 // ========================================
 // 2. 更新型ジャンル：25種類
-// ※名前はあとから変更・追加できます
 // ========================================
 const updateGenres = [
   "📰 国内ニュース",
@@ -370,7 +410,6 @@ const musicSubgenres = [
 
 // ========================================
 // 7. お題データ
-// big と topic を追加すれば、お題を増やせます。
 // ========================================
 const topics = [
   { big: "🎵 音楽", topic: "今まで聴いた中で、特に心に残っている曲は？" },
@@ -444,13 +483,13 @@ const topics = [
 ];
 
 // ========================================
-// 8. 抽選処理
+// 8. 共通処理
 // ========================================
 const $ = id => document.getElementById(id);
-
 const reels = [0, 1, 2, 3, 4].map(i => $("reel" + i));
-const reelCards = document.querySelectorAll(".reel");
 const spinButton = $("spinButton");
+const newsButton = $("newsButton");
+const newsLink = $("newsLink");
 
 function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
@@ -460,10 +499,12 @@ function getTopicForGenre(big) {
   const matches = topics.filter(item => item.big === big);
   if (matches.length) return pick(matches).topic;
 
-  // お題未登録のジャンルでも空欄にならないための予備
   return `「${big}」について、好きなところや気になることを語るなら？`;
 }
 
+// ========================================
+// 9. お題に関連するジャンルを決める
+// ========================================
 function getRelatedTypes(topic) {
   const rules = [
     {
@@ -547,7 +588,9 @@ function getRelatedTypes(topic) {
   };
 }
 
-
+// ========================================
+// 10. 通常ガチャ
+// ========================================
 function createResult() {
   const big = pick(bigGenres);
   const topic = getTopicForGenre(big);
@@ -562,13 +605,7 @@ function createResult() {
     $("label4").textContent = "REEL 5 · お題";
 
     return {
-      values: [
-        big,
-        sub,
-        related.middle,
-        related.small,
-        topic
-      ],
+      values: [big, sub, related.middle, related.small, topic],
       path: `${big} → ${sub} → ${related.middle} → ${related.small}`,
       topic
     };
@@ -580,13 +617,7 @@ function createResult() {
   $("label4").textContent = "REEL 5 · お題";
 
   return {
-    values: [
-      big,
-      related.middle,
-      related.small,
-      related.deep,
-      topic
-    ],
+    values: [big, related.middle, related.small, related.deep, topic],
     path: `${big} → ${related.middle} → ${related.small} → ${related.deep}`,
     topic
   };
@@ -594,11 +625,15 @@ function createResult() {
 
 let busy = false;
 
+function hideNewsLink() {
+  newsLink.style.display = "none";
+  newsLink.replaceChildren();
+}
 
 function spin() {
   if (busy) return;
-  busy = true;
-  spinButton.disabled = true;
+
+  hideNewsLink();
 
   const result = createResult();
 
@@ -608,15 +643,133 @@ function spin() {
 
   $("resultTopic").textContent = result.topic;
   $("resultPath").textContent = result.path;
-
-  busy = false;
-  spinButton.disabled = false;
 }
 
+// ========================================
+// 11. ニュースガチャ
+// ========================================
+const NEWS_API_URL =
+  "https://zatsudan-gacha-api.salvia-replay.workers.dev/api/topics";
+
+const topicTypeNames = {
+  security: "セキュリティ",
+  disaster: "災害・防災",
+  traffic: "交通情報",
+  transport: "交通・移動",
+  employment: "仕事・採用",
+  event: "イベント",
+  welfare: "健康・福祉",
+  housing: "住まい",
+  food: "食・農業",
+  culture: "文化・歴史",
+  technology: "技術・デジタル",
+  policy: "行政・制度",
+  local: "地域ニュース",
+  general: "社会の話題"
+};
+
+async function spinNews() {
+  if (busy) return;
+
+  busy = true;
+  spinButton.disabled = true;
+  newsButton.disabled = true;
+  newsButton.textContent = "⏳ ニュース取得中…";
+  hideNewsLink();
+
+  try {
+    const response = await fetch(NEWS_API_URL, {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("ニュースAPIへの接続に失敗しました。");
+    }
+
+    const data = await response.json();
+
+    if (
+      !data.success ||
+      !Array.isArray(data.topics) ||
+      data.topics.length === 0
+    ) {
+      throw new Error("現在、取得できるニュースがありません。");
+    }
+
+    const article = pick(data.topics);
+    const category = article.category || "ニュース";
+    const type = topicTypeNames[article.topicType] || "社会の話題";
+    const title = article.title || "ニュースの詳細を確認してみよう";
+    const prompt = article.conversationTopic ||
+      "このニュースについて、どう思う？";
+
+    const values = [
+      "📰 ニュース",
+      category,
+      type,
+      title,
+      prompt
+    ];
+
+    values.forEach((value, i) => {
+      reels[i].textContent = value;
+    });
+
+    $("label1").textContent = "REEL 2 · 情報源の分類";
+    $("label2").textContent = "REEL 3 · 話題の種類";
+    $("label3").textContent = "REEL 4 · 記事タイトル";
+    $("label4").textContent = "REEL 5 · 会話のお題";
+
+    $("resultTopic").textContent = prompt;
+    $("resultPath").textContent =
+      `${article.source || "ニュース"}：「${title}」`;
+
+    if (article.url) {
+      try {
+        const parsedUrl = new URL(article.url);
+
+        if (
+          parsedUrl.protocol === "https:" ||
+          parsedUrl.protocol === "http:"
+        ) {
+          const link = document.createElement("a");
+          link.href = parsedUrl.href;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "🔗 元記事を読む";
+
+          newsLink.appendChild(link);
+          newsLink.style.display = "block";
+        }
+      } catch (linkError) {
+        console.warn("記事リンクを表示できませんでした。", linkError);
+      }
+    }
+
+  } catch (error) {
+    $("resultTopic").textContent = "ニュースを取得できなかったよ。";
+    $("resultPath").textContent =
+      "少し時間をおいて再度試してね。通常のガチャは引き続き使えるよ。";
+
+    console.error("ニュース取得エラー:", error);
+
+  } finally {
+    busy = false;
+    spinButton.disabled = false;
+    newsButton.disabled = false;
+    newsButton.textContent = "📰 ニュースでガチャ";
+  }
+}
+
+// ========================================
+// 12. リセット
+// ========================================
 function reset() {
   if (busy) return;
 
-  reels.forEach(reel => reel.textContent = "？？？");
+  reels.forEach(reel => {
+    reel.textContent = "？？？";
+  });
 
   $("label1").textContent = "REEL 2 · 中ジャンル";
   $("label2").textContent = "REEL 3 · 小ジャンル";
@@ -625,9 +778,15 @@ function reset() {
 
   $("resultTopic").textContent = "「ガチャを回す！」を押してね。";
   $("resultPath").textContent = "どんなお題が出るかはお楽しみ！";
+
+  hideNewsLink();
 }
 
+// ========================================
+// 13. ボタンの動作設定
+// ========================================
 spinButton.addEventListener("click", spin);
+newsButton.addEventListener("click", spinNews);
 $("resetButton").addEventListener("click", reset);
 
 // 起動時のジャンル数チェック
