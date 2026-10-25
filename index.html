@@ -161,125 +161,41 @@ button:disabled { opacity: .55; cursor: wait; }
   </section>
 </main>
 
+
 <script>
-// お題データ：ここに追加することでガチャの種類を増やせます。
-// 通常：big → middle → small → deep → question
-// 音楽：big → musicSub → middle → small → question
+// ========================================
+// 1. お題データ
+// 新しいお題は、この配列に追加していく
+// ========================================
 const topics = [
-  {
-    big: "🎮 ゲーム",
-    middle: "アクション",
-    small: "💭 思い出・経験",
-    deep: "初めてハマった作品",
-    question: "初めてハマったアクションゲームは？"
-  },
-  {
-    big: "🎮 ゲーム",
-    middle: "ゲーム全般",
-    small: "🏆 ベスト・ランキング",
-    deep: "好きな作品",
-    question: "今まで遊んだ中で一番好きなゲームは？"
-  },
-  {
-    big: "🏝️ 地域・街",
-    middle: "沖縄",
-    small: "🏆 ベスト・ランキング",
-    deep: "お気に入りの場所",
-    question: "沖縄で一番好きな場所TOP3は？"
-  },
-  {
-    big: "🤖 AI",
-    middle: "ChatGPT",
-    small: "🔮 未来・予想",
-    deep: "暮らしの変化",
-    question: "AIがもっと普及したら生活はどう変わると思う？"
-  },
-  {
-    big: "🍜 食べ物",
-    middle: "ラーメン",
-    small: "⚔️ 比較・対決",
-    deep: "味の好み",
-    question: "豚骨・醤油・味噌・塩なら、どれが一番好き？"
-  },
-  {
-    big: "🎬 映画・アニメ",
-    middle: "アニメ",
-    small: "💭 思い出・経験",
-    deep: "子どもの頃",
-    question: "子どもの頃に夢中になったアニメは？"
-  },
-  {
-    big: "💰 お金・生活",
-    middle: "買い物",
-    small: "💰 お金・価値",
-    deep: "お金をかけたいもの",
-    question: "多少高くても、お金をかけたいものは何？"
-  },
-  {
-    big: "🧠 雑学・知識",
-    middle: "意外な知識",
-    small: "❤️ 好き・嫌い",
-    deep: "つい人に話したくなること",
-    question: "つい誰かに話したくなる雑学はある？"
-  },
-  {
-    big: "🎵 音楽",
-    musicSub: "ヴィジュアル系",
-    middle: "ボーカル",
-    small: "🏆 ベスト・ランキング",
-    question: "一番好きなV系ボーカリストは？"
-  },
-  {
-    big: "🎵 音楽",
-    musicSub: "アイドル",
-    middle: "アイドル全般",
-    small: "💭 思い出・経験",
-    question: "初めてハマったアイドルは？"
-  },
-  {
-    big: "🎵 音楽",
-    musicSub: "オーディオ・音質",
-    middle: "音質・機材",
-    small: "💰 お金・価値",
-    question: "音質のためなら、いくらまでお金を出せる？"
-  },
-  {
-    big: "🎵 音楽",
-    musicSub: "邦ロック",
-    middle: "年代・時代",
-    small: "⚔️ 比較・対決",
-    question: "90年代邦ロックと00年代邦ロック、どっちが好き？"
-  },
-  {
-    big: "🎵 音楽",
-    musicSub: "歌・ボーカル",
-    middle: "歌唱・表現",
-    small: "🤔 意見・考え",
-    question: "歌が上手いって、結局どういうことだと思う？"
-  },
-  {
-    big: "🎵 音楽",
-    musicSub: "音楽全般",
-    middle: "音楽の楽しみ方",
-    small: "🪄 もしも・空想",
-    question: "一日だけ好きなアーティストと過ごせるなら何をする？"
-  },
-  {
-    big: "🎮 ゲーム",
-    middle: "ゲーム全般",
-    small: "🪄 もしも・空想",
-    deep: "ゲームの世界",
-    question: "ゲームの世界に一つだけ入れるなら、どの作品？"
-  },
-  {
-    big: "🏝️ 地域・街",
-    middle: "旅行",
-    small: "🔮 未来・予想",
-    deep: "行ってみたい場所",
-    question: "いつか行ってみたい場所はどこ？"
-  }
+  { big: "🎮 ゲーム", middle: "アクション", small: "💭 思い出・経験", deep: "初めてハマった作品", question: "初めてハマったアクションゲームは？" },
+  { big: "🎮 ゲーム", middle: "ゲーム全般", small: "🏆 ベスト・ランキング", deep: "好きな作品", question: "今まで遊んだ中で一番好きなゲームは？" },
+  { big: "🎮 ゲーム", middle: "ゲーム全般", small: "🪄 もしも・空想", deep: "ゲームの世界", question: "ゲームの世界に一つだけ入れるなら、どの作品？" },
+
+  { big: "🏝️ 地域・街", middle: "沖縄", small: "🏆 ベスト・ランキング", deep: "お気に入りの場所", question: "沖縄で一番好きな場所TOP3は？" },
+  { big: "🏝️ 地域・街", middle: "旅行", small: "🔮 未来・予想", deep: "行ってみたい場所", question: "いつか行ってみたい場所はどこ？" },
+
+  { big: "🤖 AI", middle: "ChatGPT", small: "🔮 未来・予想", deep: "暮らしの変化", question: "AIがもっと普及したら生活はどう変わると思う？" },
+
+  { big: "🍜 食べ物", middle: "ラーメン", small: "⚔️ 比較・対決", deep: "味の好み", question: "豚骨・醤油・味噌・塩なら、どれが一番好き？" },
+
+  { big: "🎬 映画・アニメ", middle: "アニメ", small: "💭 思い出・経験", deep: "子どもの頃", question: "子どもの頃に夢中になったアニメは？" },
+
+  { big: "💰 お金・生活", middle: "買い物", small: "💰 お金・価値", deep: "お金をかけたいもの", question: "多少高くても、お金をかけたいものは何？" },
+
+  { big: "🧠 雑学・知識", middle: "意外な知識", small: "❤️ 好き・嫌い", deep: "つい人に話したくなること", question: "つい誰かに話したくなる雑学はある？" },
+
+  { big: "🎵 音楽", musicSub: "ヴィジュアル系", middle: "ボーカル", small: "🏆 ベスト・ランキング", question: "一番好きなV系ボーカリストは？" },
+  { big: "🎵 音楽", musicSub: "アイドル", middle: "アイドル全般", small: "💭 思い出・経験", question: "初めてハマったアイドルは？" },
+  { big: "🎵 音楽", musicSub: "オーディオ・音質", middle: "音質・機材", small: "💰 お金・価値", question: "音質のためなら、いくらまでお金を出せる？" },
+  { big: "🎵 音楽", musicSub: "邦ロック", middle: "年代・時代", small: "⚔️ 比較・対決", question: "90年代邦ロックと00年代邦ロック、どっちが好き？" },
+  { big: "🎵 音楽", musicSub: "歌・ボーカル", middle: "歌唱・表現", small: "🤔 意見・考え", question: "歌が上手いって、結局どういうことだと思う？" },
+  { big: "🎵 音楽", musicSub: "音楽全般", middle: "音楽の楽しみ方", small: "🪄 もしも・空想", question: "一日だけ好きなアーティストと過ごせるなら何をする？" }
 ];
 
+// ========================================
+// 2. 小ジャンル共通リスト
+// ========================================
 const smallTypes = [
   "❤️ 好き・嫌い",
   "🏆 ベスト・ランキング",
@@ -293,15 +209,57 @@ const smallTypes = [
   "🪄 もしも・空想"
 ];
 
+// ========================================
+// 3. 抽選の状態管理
+// ========================================
 const $ = id => document.getElementById(id);
+
 let currentTopic = null;
+let previousTopic = null;
+let previousBig = null;
 let busy = false;
 
 function choose(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-function showTopic(topic) {
+// ========================================
+// 4. 抽選ルール
+// 大ジャンルを先に選び、そのジャンル内からお題を選ぶ
+// ========================================
+function drawTopic() {
+  const bigGenres = [...new Set(topics.map(topic => topic.big))];
+
+  // 直前と同じ大ジャンルを避ける
+  let availableGenres = bigGenres.filter(big => big !== previousBig);
+
+  if (availableGenres.length === 0) {
+    availableGenres = bigGenres;
+  }
+
+  const selectedBig = choose(availableGenres);
+
+  // 選んだ大ジャンルに属するお題だけを候補にする
+  let candidates = topics.filter(topic => topic.big === selectedBig);
+
+  // 直前と同じお題を避ける
+  if (candidates.length > 1 && previousTopic) {
+    const withoutPrevious = candidates.filter(
+      topic => topic.question !== previousTopic.question
+    );
+
+    if (withoutPrevious.length > 0) {
+      candidates = withoutPrevious;
+    }
+  }
+
+  return choose(candidates);
+}
+
+// ========================================
+// 5. リールの表示
+// ========================================
+function getDisplay(topic) {
   const isMusic = topic.big.includes("音楽");
 
   const labels = isMusic
@@ -311,6 +269,12 @@ function showTopic(topic) {
   const values = isMusic
     ? [topic.big, topic.musicSub, topic.middle, topic.small, topic.question]
     : [topic.big, topic.middle, topic.small, topic.deep, topic.question];
+
+  return { labels, values };
+}
+
+function showTopic(topic) {
+  const { labels, values } = getDisplay(topic);
 
   for (let i = 0; i < 5; i++) {
     $("label" + i).textContent = labels[i];
@@ -321,8 +285,12 @@ function showTopic(topic) {
   $("copy").disabled = false;
 }
 
+// ========================================
+// 6. スロット演出
+// ========================================
 function spin() {
-  if (busy) return;
+  if (busy || topics.length === 0) return;
+
   busy = true;
   $("draw").disabled = true;
   $("copy").disabled = true;
@@ -331,18 +299,9 @@ function spin() {
   const reels = document.querySelectorAll(".reel");
   reels.forEach(el => el.classList.add("spinning"));
 
-  const topic = choose(topics);
-  const isMusic = topic.big.includes("音楽");
+  const topic = drawTopic();
+  const { labels, values } = getDisplay(topic);
 
-  const labels = isMusic
-    ? ["大ジャンル", "音楽サブ", "中ジャンル", "小ジャンル", "お題"]
-    : ["大ジャンル", "中ジャンル", "小ジャンル", "深堀", "お題"];
-
-  const values = isMusic
-    ? [topic.big, topic.musicSub, topic.middle, topic.small, topic.question]
-    : [topic.big, topic.middle, topic.small, topic.deep, topic.question];
-
-  // リールを順番に止めていく
   for (let i = 0; i < 5; i++) {
     setTimeout(() => {
       $("label" + i).textContent = labels[i];
@@ -351,6 +310,9 @@ function spin() {
 
       if (i === 4) {
         currentTopic = topic;
+        previousTopic = topic;
+        previousBig = topic.big;
+
         $("question").textContent = topic.question;
         $("copy").disabled = false;
         $("draw").disabled = false;
@@ -361,22 +323,29 @@ function spin() {
   }
 }
 
+// ========================================
+// 7. ボタン操作・コピー
+// ========================================
 $("draw").addEventListener("click", spin);
 
 $("copy").addEventListener("click", async () => {
   if (!currentTopic) return;
-  const text = currentTopic.question;
+
   try {
-    await navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(currentTopic.question);
     $("status").textContent = "お題をコピーしたよ！";
   } catch {
     const area = document.createElement("textarea");
-    area.value = text;
+    area.value = currentTopic.question;
     document.body.appendChild(area);
     area.select();
-    document.execCommand("copy");
+
+    const copied = document.execCommand("copy");
     area.remove();
-    $("status").textContent = "お題をコピーしたよ！";
+
+    $("status").textContent = copied
+      ? "お題をコピーしたよ！"
+      : "コピーできなかったため、お題を手動でコピーしてね。";
   }
 });
 </script>
